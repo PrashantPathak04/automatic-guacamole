@@ -1,27 +1,40 @@
 import './App.css';
-
+import {useRef,useEffect,useState} from 'react';
 function App() {
+  const inputElement = useRef();
+  const [name, setname]=useState("");
+  const [error, setError] = useState(null);
+  const [isLoaded, setIsLoaded] = useState(false);
+  const [item, setitem] = useState("");
+  const focusInput = () => {
+    setname(inputElement.current.value);
+  };
+
+  useEffect(() => {
+    fetch("https://api.agify.io/?name="+name)
+      .then(res => res.json())
+      .then(
+        (result) => {
+          setIsLoaded(true);
+          setitem(result);
+        },
+        // Note: it's important to handle errors here
+        // instead of a catch() block so that we don't swallow
+        // exceptions from actual bugs in components.
+        (error) => {
+          setIsLoaded(true);
+          setError(error);
+        }
+      )
+  }, [name]);
   return (
     <div className="App">
-      <header className="App-header">
-        <img src="Octocat.png" className="App-logo" alt="logo" />
-        <p>
-          GitHub Codespaces <span className="heart">♥️</span> React
-        </p>
-        <p className="small">
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <p>
-          <a
-            className="App-link"
-            href="https://reactjs.org"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Learn React
-          </a>
-        </p>
-      </header>
+      <div className='App-header'>
+        <h1>A Fun App to know your age</h1>
+        Enter your name <input ref={inputElement} ></input>
+        <button onClick={focusInput}>Get Age</button>
+        {name !='' && <h1>Great !! <br/> Your age  is<br/> {item.age}</h1> }
+      </div>
     </div>
   );
 }
